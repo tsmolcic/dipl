@@ -15,7 +15,7 @@ if not os.path.exists(raw_data_dir):
     print('creating directories...\n')
     os.makedirs(raw_data_dir)
 
-num_of_imgs = 2 #reduce if needed
+num_of_imgs = 100 #reduce if needed
 
 start_ind = 100
 end_ind = start_ind + num_of_imgs #max(end_ind)=380
