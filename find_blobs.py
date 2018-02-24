@@ -34,7 +34,7 @@ for file in os.listdir(images):
         img = imread(img_dir+'/'+filename)
         img_gray = rgb2gray(img)
         
-        blobs_log = blob_log(img_gray, min_sigma=5, max_sigma=30, num_sigma=10, threshold=.05)
+        blobs_log = blob_log(img_gray, min_sigma=5, max_sigma=30, num_sigma=10, threshold=.075)
         blobs_log[:,2] = blobs_log[:,2] * sqrt(2)
         
         X = blobs_log[:,1]
