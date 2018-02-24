@@ -5,6 +5,7 @@ Created on Mon Jan 29 13:32:36 2018
 @author: Tomislav
 """
 
+#import getch
 from msvcrt import getch
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg

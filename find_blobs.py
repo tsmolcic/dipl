@@ -34,11 +34,13 @@ for file in os.listdir(images):
         img = imread(img_dir+'/'+filename)
         img_gray = rgb2gray(img)
         
-        blobs_log = blob_log(img_gray, min_sigma=5, max_sigma=30, num_sigma=2, threshold=.1)
+        blobs_log = blob_log(img_gray, min_sigma=5, max_sigma=30, num_sigma=10, threshold=.05)
         blobs_log[:,2] = blobs_log[:,2] * sqrt(2)
         
         X = blobs_log[:,1]
         Y = blobs_log[:,0]
+        
+        fileName2 = filename.replace('.jpg', '')
         
         for i in range(X.shape[0]):
             y1 = int(Y[i]-20)
@@ -49,6 +51,6 @@ for file in os.listdir(images):
                 continue
             else:
                 t = img[y1:y2 , x1:x2]
-                blobname = 'img'+str(num)+'blob'+str(i)+'.jpg'
+                blobname = fileName2+'blob'+str(i)+'.jpg'
                 imwrite(blobs_dir+'/'+blobname, t)
     num += 1
