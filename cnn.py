@@ -12,7 +12,10 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 t1 = time()
 
 pickle_file = 'datasets3.pickle'
-new_data_pickle = './new_data/unknown.pickle'
+new_data_pickle_1 = './new_data/unknown.pickle'
+new_data_pickle_2 = './new_data/blobs_0.pickle'
+new_data_pickle_3 = './new_data/blobs_1.pickle'
+new_data_pickle_4 = './new_data/blobs_2.pickle'
 
 with open(pickle_file, 'rb') as f:
     temp = pickle.load(f)
@@ -26,9 +29,21 @@ with open(pickle_file, 'rb') as f:
     del temp
     f.close()
 
-with open(new_data_pickle, 'rb') as f:
-    new_data = pickle.load(f)
+with open(new_data_pickle_1, 'rb') as f:
+    new_data_1 = pickle.load(f)
     f.close()
+
+with open(new_data_pickle_2, 'rb') as f:
+    new_data_2 = pickle.load(f)
+    f.close()
+
+with open(new_data_pickle_3, 'rb') as f:
+    new_data_3 = pickle.load(f)
+    f.close()
+
+with open(new_data_pickle_4, 'rb') as f:
+    new_data_4 = pickle.load(f)
+    f.close()    
 
 #set variables
 image_size = training_set.shape[1] #40
@@ -53,10 +68,13 @@ print('\nTraining: {}, {}\nValidation: {}, {}\nTest: {}, {}'.format(training_set
 training_set, training_set_labels = reformat(training_set, training_set_labels)
 validation_set, validation_set_labels = reformat(validation_set, validation_set_labels)
 test_set, test_set_labels = reformat(test_set, test_set_labels)
-new_data_set = reformat_new_data(new_data)
+new_data_set_1 = reformat_new_data(new_data_1)
+new_data_set_2 = reformat_new_data(new_data_2)
+new_data_set_3 = reformat_new_data(new_data_3)
+new_data_set_4 = reformat_new_data(new_data_4)
 #datasets after reformating
 print('\nTraining: {}, {}\nValidation: {}, {}\nTest: {}, {}'.format(training_set.shape, training_set_labels.shape, validation_set.shape, validation_set_labels.shape, test_set.shape, test_set_labels.shape))
-print('New data: {}'.format(new_data_set.shape))
+print('New data: {}, {}, {}, {}'.format(new_data_set_1.shape, new_data_set_2.shape, new_data_set_3.shape, new_data_set_4.shape))
 #### hyperparameters ###
 
 batch_size = 64
@@ -71,7 +89,10 @@ with tf.Session(graph = g) as sess:
     tf_training_labels = tf.placeholder(tf.float32, shape = (batch_size, num_labels))
     tf_validation_dataset = tf.constant(validation_set)
     tf_test_dataset = tf.constant(test_set)
-    tf_new_dataset = tf.constant(new_data_set)
+    tf_new_dataset_1 = tf.constant(new_data_set_1)
+    tf_new_dataset_2 = tf.constant(new_data_set_2)
+    tf_new_dataset_3 = tf.constant(new_data_set_3)
+    tf_new_dataset_4 = tf.constant(new_data_set_4)
     
     layer1_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, num_channels, depth], stddev=0.1))
     layer1_biases = tf.Variable(tf.zeros([depth]))
@@ -107,7 +128,10 @@ with tf.Session(graph = g) as sess:
     training_predictions = tf.nn.softmax(logits)
     validation_predictions = tf.nn.softmax(model(tf_validation_dataset))
     test_prediction = tf.nn.softmax(model(tf_test_dataset))
-    new_data_prediction = tf.nn.softmax(model(tf_new_dataset))
+    new_data_prediction_1 = tf.nn.softmax(model(tf_new_dataset_1))
+    new_data_prediction_2 = tf.nn.softmax(model(tf_new_dataset_2))
+    new_data_prediction_3 = tf.nn.softmax(model(tf_new_dataset_3))
+    new_data_prediction_4 = tf.nn.softmax(model(tf_new_dataset_4))
     
     num_steps = 1001
 
@@ -131,9 +155,22 @@ with tf.Session(graph = g) as sess:
     print('\n\nTraining time: {:2f} s'.format(t2-t1))
     save_path = saver.save(sess, './model/asteroid_model.ckpt')
     print('Model saved in path: {}'.format(save_path))
-    new_predictions = new_data_prediction.eval()
-    new_predictions = np.argmax(new_predictions,1)
-    print(np.unique(new_predictions, return_counts = True))
+
+    new_predictions_1 = new_data_prediction_1.eval()
+    new_predictions_1 = np.argmax(new_predictions_1,1)
+    print(np.unique(new_predictions_1, return_counts = True))
+    
+    new_predictions_2 = new_data_prediction_2.eval()
+    new_predictions_2 = np.argmax(new_predictions_2,1)
+    print(np.unique(new_predictions_2, return_counts = True))
+
+    new_predictions_3 = new_data_prediction_3.eval()
+    new_predictions_3 = np.argmax(new_predictions_3,1)
+    print(np.unique(new_predictions_3, return_counts = True))
+
+    new_predictions_4 = new_data_prediction_4.eval()
+    new_predictions_4 = np.argmax(new_predictions_4,1)
+    print(np.unique(new_predictions_4, return_counts = True))
     # print(np.unique(np.argmax(new_predictions,1), return_counts = True))
 
 ps = np.argmax(predictions, 1)
@@ -149,11 +186,38 @@ for num in mistakes:
 
 print('Mistakes on test set: {}\nSaved to mistakes directory.'.format(len(mistakes)))
 
-count = 0
-for i in range(new_predictions.shape[0]):
-    if new_predictions[i] == 1:
-        name = 'maybe/c'+str(i)+'.jpg'
-        scipy.misc.imsave(name, new_data[i]*255)
-        count += 1
+count_1 = 0
+for i in range(new_predictions_1.shape[0]):
+    if new_predictions_1[i] == 1:
+        name = 'maybe/c_1_'+str(i)+'.jpg'
+        scipy.misc.imsave(name, new_data_1[i]*255)
+        count_1 += 1
 
-print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count))
+print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count_1))
+
+count_2 = 0
+for i in range(new_predictions_2.shape[0]):
+    if new_predictions_2[i] == 1:
+        name = 'maybe/c_2_'+str(i)+'.jpg'
+        scipy.misc.imsave(name, new_data_2[i]*255)
+        count_2 += 1
+
+print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count_2))
+
+count_3 = 0
+for i in range(new_predictions_3.shape[0]):
+    if new_predictions_3[i] == 1:
+        name = 'maybe/c_3_'+str(i)+'.jpg'
+        scipy.misc.imsave(name, new_data_3[i]*255)
+        count_3 += 1
+
+print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count_3))
+
+count_4 = 0
+for i in range(new_predictions_4.shape[0]):
+    if new_predictions_4[i] == 1:
+        name = 'maybe/c_4_'+str(i)+'.jpg'
+        scipy.misc.imsave(name, new_data_4[i]*255)
+        count_1 += 1
+
+print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count_4))
