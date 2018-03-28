@@ -6,3 +6,5 @@ new_pickle.py,
 cnn.py
 
 novi (mozda) asteroidi ce biti u mapi maybe.
+
+na kraju za provjeru i klasifikaciju pokrenuti klasif.py
