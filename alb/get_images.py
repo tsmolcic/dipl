@@ -8,7 +8,7 @@ Created on Fri Feb  2 09:13:32 2018
 import os
 import requests
 
-num_of_imgs = 1 #reduce if needed
+num_of_imgs = 100 #reduce if needed
 
 cwd = os.getcwd()
 
