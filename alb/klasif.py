@@ -17,7 +17,7 @@ cwd = os.getcwd()
 
 dirs = []
 
-blobs_directory = cwd+'/sdss_data/blobs/'
+blobs_directory = cwd+'/maybe/'
 valid_dir = cwd+'/sdss_data/valid'
 notvalid_dir = cwd+'/sdss_data/notvalid'
 potential_dir = cwd+'/sdss_data/potential/'
