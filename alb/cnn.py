@@ -121,7 +121,7 @@ with tf.Session(graph = g) as sess:
     test_prediction = tf.nn.softmax(model(tf_test_dataset))
     new_data_prediction_1 = tf.nn.softmax(model(tf_new_dataset_1))
     
-    num_steps = 1001
+    num_steps = 51
 
     print('We have lifthoff!')
     for step in range(num_steps):
