@@ -1,8 +1,8 @@
 sve se pokrece sa python -ime_skripte-, redom:
 
-get_images.py
-find_blobs.py
-new_pickle.py
+get_images.py,
+find_blobs.py,
+new_pickle.py,
 cnn.py
 
 novi (mozda) asteroidi ce biti u mapi maybe.
