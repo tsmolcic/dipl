@@ -12,7 +12,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 t1 = time()
 
-pickle_file = 'datasets3.pickle'
+pickle_file = 'datasets.pickle'
 new_data_pickle_1 = './sdss_data/blobs.pickle'
 
 new_dirs = []
