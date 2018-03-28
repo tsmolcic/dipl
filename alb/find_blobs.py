@@ -12,7 +12,7 @@ from imageio import imread, imwrite
 from skimage.color import rgb2gray
 from skimage.feature import blob_log
 
-num_of_raw_img_dirs = 12
+num_of_raw_img_dirs = 24
 
 cwd = os.getcwd()
 
