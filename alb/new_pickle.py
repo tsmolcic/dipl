@@ -1,5 +1,5 @@
 import os
-
+import sys
 import numpy as np
 from matplotlib.image import imread, imsave
 
@@ -25,6 +25,9 @@ def load_image_folder(folder):
                 raise Exception('Unexpected image shape {}'.format(image_data.shape))
             dataset[count, :, :] = image_data
             count += 1
+            if count % 500 == 0:
+                sys.stdout.write("progress: {}   \r".format(count) )
+                sys.stdout.flush()
         except(IOError, ValueError) as e:
             print('Couldn\'t load image {} - {} - skipping.'.format(image_file, e))
     
