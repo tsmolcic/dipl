@@ -1,19 +1,18 @@
-import numpy as np
-import tensorflow as tf
 import os
-
-from six.moves import cPickle as pickle
-
 from time import time
 
+import numpy as np
 import scipy.misc
+import tensorflow as tf
+
+from six.moves import cPickle as pickle
 
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 t1 = time()
 
 pickle_file = 'datasets.pickle'
-new_data_pickle_1 = './sdss_data/blobs.pickle'
+new_data_pickle_1 = 'blobs0.pickle'
 
 new_dirs = []
 mistakes_directory = './mistakes'
@@ -38,9 +37,9 @@ with open(pickle_file, 'rb') as f:
     del temp
     f.close()
 
-with open(new_data_pickle_1, 'rb') as f:
+""" with open(new_data_pickle_1, 'rb') as f:
     new_data_1 = pickle.load(f)
-    f.close()
+    f.close() """
 
 #set variables
 image_size = training_set.shape[1] #40
@@ -65,10 +64,10 @@ print('\nTraining: {}, {}\nValidation: {}, {}\nTest: {}, {}'.format(training_set
 training_set, training_set_labels = reformat(training_set, training_set_labels)
 validation_set, validation_set_labels = reformat(validation_set, validation_set_labels)
 test_set, test_set_labels = reformat(test_set, test_set_labels)
-new_data_set_1 = reformat_new_data(new_data_1)
+# new_data_set_1 = reformat_new_data(new_data_1)
 #datasets after reformating
 print('\nTraining: {}, {}\nValidation: {}, {}\nTest: {}, {}'.format(training_set.shape, training_set_labels.shape, validation_set.shape, validation_set_labels.shape, test_set.shape, test_set_labels.shape))
-print('New data: {}'.format(new_data_set_1.shape))
+# print('New data: {}'.format(new_data_set_1.shape))
 #### hyperparameters ###
 
 batch_size = 64
@@ -76,96 +75,107 @@ patch_size = 5
 depth = 64
 num_hidden = 64
 
-g = tf.Graph()
 
-with tf.Session(graph = g) as sess:
-    tf_training_dataset = tf.placeholder(tf.float32, shape = (batch_size, image_size, image_size, num_channels))
-    tf_training_labels = tf.placeholder(tf.float32, shape = (batch_size, num_labels))
-    tf_validation_dataset = tf.constant(validation_set)
-    tf_test_dataset = tf.constant(test_set)
-    tf_new_dataset_1 = tf.constant(new_data_set_1)
-    
-    layer1_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, num_channels, depth], stddev=0.1))
-    layer1_biases = tf.Variable(tf.zeros([depth]))
+def new_run(new_data_set, num):
+    g = tf.Graph()
 
-    layer2_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, depth, depth], stddev=0.1))
-    layer2_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
+    with tf.Session(graph = g) as sess:
+        tf_training_dataset = tf.placeholder(tf.float32, shape = (batch_size, image_size, image_size, num_channels))
+        tf_training_labels = tf.placeholder(tf.float32, shape = (batch_size, num_labels))
+        tf_validation_dataset = tf.constant(validation_set)
+        tf_test_dataset = tf.constant(test_set)
+        tf_new_dataset_1 = tf.constant(new_data_set)
+        
+        layer1_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, num_channels, depth], stddev=0.1))
+        layer1_biases = tf.Variable(tf.zeros([depth]))
 
-    layer3_weights = tf.Variable(tf.truncated_normal([image_size // 4 * image_size // 4 * depth, num_hidden], stddev=0.1))
-    layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
+        layer2_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, depth, depth], stddev=0.1))
+        layer2_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
 
-    layer4_weights = tf.Variable(tf.truncated_normal([num_hidden, num_labels], stddev=0.1))
-    layer4_biases = tf.Variable(tf.constant(1.0, shape=[num_labels]))
+        layer3_weights = tf.Variable(tf.truncated_normal([image_size // 4 * image_size // 4 * depth, num_hidden], stddev=0.1))
+        layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
 
-    tf.global_variables_initializer().run()
-    saver = tf.train.Saver()
+        layer4_weights = tf.Variable(tf.truncated_normal([num_hidden, num_labels], stddev=0.1))
+        layer4_biases = tf.Variable(tf.constant(1.0, shape=[num_labels]))
 
-    def model(data):
-        conv = tf.nn.conv2d(data, layer1_weights, [1, 2, 2, 1], padding='SAME')
-        hidden = tf.nn.relu(conv + layer1_biases)
-        conv = tf.nn.conv2d(hidden, layer2_weights, [1, 2, 2, 1], padding='SAME')
-        hidden = tf.nn.relu(conv + layer2_biases)
-        shape = hidden.get_shape().as_list()
-        reshape = tf.reshape(hidden, [shape[0], shape[1] * shape[2] * shape[3]])
-        hidden = tf.nn.relu(tf.matmul(reshape, layer3_weights) + layer3_biases)
-        output = tf.matmul(hidden, layer4_weights) + layer4_biases
-        return output
-    
-    logits = model(tf_training_dataset)
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = tf_training_labels, logits = logits))
+        tf.global_variables_initializer().run()
+        # saver = tf.train.Saver()
 
-    optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
+        def model(data):
+            conv = tf.nn.conv2d(data, layer1_weights, [1, 2, 2, 1], padding='SAME')
+            hidden = tf.nn.relu(conv + layer1_biases)
+            conv = tf.nn.conv2d(hidden, layer2_weights, [1, 2, 2, 1], padding='SAME')
+            hidden = tf.nn.relu(conv + layer2_biases)
+            shape = hidden.get_shape().as_list()
+            reshape = tf.reshape(hidden, [shape[0], shape[1] * shape[2] * shape[3]])
+            hidden = tf.nn.relu(tf.matmul(reshape, layer3_weights) + layer3_biases)
+            output = tf.matmul(hidden, layer4_weights) + layer4_biases
+            return output
+        
+        logits = model(tf_training_dataset)
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = tf_training_labels, logits = logits))
 
-    training_predictions = tf.nn.softmax(logits)
-    validation_predictions = tf.nn.softmax(model(tf_validation_dataset))
-    test_prediction = tf.nn.softmax(model(tf_test_dataset))
-    new_data_prediction_1 = tf.nn.softmax(model(tf_new_dataset_1))
-    
-    num_steps = 1001
+        optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
 
-    print('We have lifthoff!')
-    for step in range(num_steps):
-        offset = (step * batch_size) % (training_set_labels.shape[0] - batch_size)
-        batch_data = training_set[offset : (offset + batch_size), :, :, :]
-        batch_labels = training_set_labels[offset : (offset + batch_size)]
+        training_predictions = tf.nn.softmax(logits)
+        validation_predictions = tf.nn.softmax(model(tf_validation_dataset))
+        test_prediction = tf.nn.softmax(model(tf_test_dataset))
+        new_data_prediction_1 = tf.nn.softmax(model(tf_new_dataset_1))
+        
+        num_steps = 1001
 
-        feed_dict = {tf_training_dataset : batch_data, tf_training_labels : batch_labels}
+        print('We have lifthoff!')
+        for step in range(num_steps):
+            offset = (step * batch_size) % (training_set_labels.shape[0] - batch_size)
+            batch_data = training_set[offset : (offset + batch_size), :, :, :]
+            batch_labels = training_set_labels[offset : (offset + batch_size)]
 
-        _, l, predictions = sess.run([optimizer, loss, training_predictions], feed_dict = feed_dict)
-        if step % 50 == 0:
-            print('Minibatch loss at step {}: {:2f}'.format(step, l))
-            print('Minibatch accuracy: {:2f}'.format( accuracy(predictions, batch_labels) ))
-            print('Validation accuracy: {:2f}\n\n'.format( accuracy(validation_predictions.eval(), validation_set_labels) ))
+            feed_dict = {tf_training_dataset : batch_data, tf_training_labels : batch_labels}
 
-    predictions = test_prediction.eval()
-    print('Test accuracy: {:2f}'.format( accuracy(predictions, test_set_labels) ))
-    t2 = time()
-    print('\n\nTraining time: {:2f} s'.format(t2-t1))
-    save_path = saver.save(sess, './model/asteroid_model.ckpt')
-    print('Model saved in path: {}'.format(save_path))
+            _, l, predictions = sess.run([optimizer, loss, training_predictions], feed_dict = feed_dict)
+            if step % 50 == 0:
+                print('Minibatch loss at step {}: {:2f}'.format(step, l))
+                print('Minibatch accuracy: {:2f}'.format( accuracy(predictions, batch_labels) ))
+                print('Validation accuracy: {:2f}\n\n'.format( accuracy(validation_predictions.eval(), validation_set_labels) ))
 
-    new_predictions_1 = new_data_prediction_1.eval()
-    new_predictions_1 = np.argmax(new_predictions_1,1)
-    print(np.unique(new_predictions_1, return_counts = True))
+        predictions = test_prediction.eval()
+        print('Test accuracy: {:2f}'.format( accuracy(predictions, test_set_labels) ))
+        t2 = time()
+        print('\n\nTraining time: {:2f} s'.format(t2-t1))
+        # save_path = saver.save(sess, './model/asteroid_model.ckpt')
+        # print('Model saved in path: {}'.format(save_path))
 
-ps = np.argmax(predictions, 1)
-ts = np.argmax(test_set_labels, 1)
+        new_predictions_1 = new_data_prediction_1.eval()
+        new_predictions_1 = np.argmax(new_predictions_1,1)
+        # print(np.unique(new_predictions_1, return_counts = True))
 
-mistakes = []
-for i in range(ps.shape[0]):
-    if ps[i] != ts[i]:
-        mistakes.append(i)
-for num in mistakes:
-    name = 'mistakes/mistake'+str(num)+'.jpg'
-    scipy.misc.imsave(name, test_set[num])
+    """ ps = np.argmax(predictions, 1)
+    ts = np.argmax(test_set_labels, 1)
 
-print('Mistakes on test set: {}\nSaved to mistakes directory.'.format(len(mistakes)))
+    # mistakes = []
+    for i in range(ps.shape[0]):
+        if ps[i] != ts[i]:
+            mistakes.append(i)
+    for num in mistakes:
+        name = 'mistakes/mistake'+str(num)+'.jpg'
+        scipy.misc.imsave(name, test_set[num])
 
-count_1 = 0
-for i in range(new_predictions_1.shape[0]):
-    if new_predictions_1[i] == 1:
-        name = 'maybe/c_1_'+str(i)+'.jpg'
-        scipy.misc.imsave(name, new_data_1[i]*255)
-        count_1 += 1
+    print('Mistakes on test set: {}\nSaved to mistakes directory.'.format(len(mistakes))) """
 
-print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count_1))
+    count = 0
+    for i in range(new_predictions_1.shape[0]):
+        if new_predictions_1[i] == 1:
+            name = 'maybe/c_'+str(num)+'_'+str(i)+'.jpg'
+            scipy.misc.imsave(name, new_data[i]*255)
+            count += 1
+
+    print('Possible asteroids found on new dataset: {}\nSaved to maybe directory.'.format(count))
+
+for i in range(53):
+    new_data_pickle = 'blobs'+str(i)+'.pickle'
+    print('\nRunning {}'.format(new_data_pickle))
+    with open(new_data_pickle, 'rb') as f:
+        new_data = pickle.load(f)
+        new_data_set = reformat_new_data(new_data)
+        f.close()
+    new_run(new_data, i)
