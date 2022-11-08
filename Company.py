@@ -11,4 +11,4 @@ class Company:
             else:
                 raise ValueError
         except ValueError:
-            print('Could not add'+ (self.employees) +' new employee; employee salary is less than 5000 or greater than 20000')
+            print('Could not add ' + employee.firstname +' '+ employee.lastname + '; employee salary is less than 5000 or greater than 20000')
